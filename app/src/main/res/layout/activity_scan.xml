@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.android.iris.blecentral_test.ScanActivity"
+    tools:layout_editor_absoluteX="8dp"
+    tools:layout_editor_absoluteY="8dp">
+
+
+    <Button
+        android:id="@+id/btn_Scan"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Scan" />
+
+    <Button
+        android:id="@+id/btn_Reconnect"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reconnect" />
+
+    <TextView
+        android:id="@+id/txt_Advertise"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="AdvertiseData"/>
+
+    <ListView
+        android:id="@+id/lst_BleDevices"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+</LinearLayout>

@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">BleCentral_test</string>
+    <string name="ble_uuid">e314e7f7-ff76-42ac-a2f2-cba6f555abca</string>
+    <!--<string name="ble_uuid">a5eb6bf7-16b3-4eaa-81fb-66767e595702</string>-->
+    <string name="ble_uuid16">0000e7f7-0000-1000-8000-00805F9B34FB</string>
+</resources>
