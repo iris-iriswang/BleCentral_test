@@ -145,13 +145,13 @@ public class ScanActivity extends AppCompatActivity {
 
         Log.d(TAG, "after startScan");
 
-//        /*after 10 seconds, the device stop to scan*/
-//        mHandler.postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//               stopDiscover();
-//            }
-//        }, 60000);
+        /*after 10 seconds, the device stop to scan*/
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+               stopDiscover();
+            }
+        }, 10000);
     }
 
     /**
