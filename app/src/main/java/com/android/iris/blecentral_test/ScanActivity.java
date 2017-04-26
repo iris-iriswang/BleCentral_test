@@ -34,10 +34,10 @@ import java.util.List;
 import java.util.UUID;
 
 public class ScanActivity extends AppCompatActivity {
-    private Button btn_Scan, btn_Reconnect;
+    private Button btn_Scan;
     private ListView lst_BleDevices;
     private TextView txt_Advertise;
-    //private BleDeviceAdapter mBleDeviceAdapter;
+    private BleDeviceAdapter mBleDeviceAdapter;
 
     private BluetoothLeScanner mBleScanner;
     private BluetoothDevice mBluetoothDevice;
@@ -49,6 +49,7 @@ public class ScanActivity extends AppCompatActivity {
     String SERVICE_HEART_RATE = "0000180D-0000-1000-8000-00805F9B34FB";
     String CHAR_Body_Sensor_Location_READ = "00002A38-0000-1000-8000-00805F9B34FB";
     //String strRandomService = "";
+
 
     private Handler MessageHandler = new Handler(){
         @Override
@@ -71,7 +72,6 @@ public class ScanActivity extends AppCompatActivity {
 
         //get components from layout
         btn_Scan = (Button) findViewById(R.id.btn_Scan);
-        btn_Reconnect =(Button) findViewById(R.id.btn_Reconnect);
         lst_BleDevices = (ListView) findViewById(R.id.lst_BleDevices);
         txt_Advertise = (TextView) findViewById(R.id.txt_Advertise);
 
@@ -84,9 +84,6 @@ public class ScanActivity extends AppCompatActivity {
         mBluetoothAdapter.setName("sony");
 
         btn_Scan.setOnClickListener(btn_Scan_Listener);
-        btn_Reconnect.setOnClickListener(btn_Reconnect_Listener);
-
-
     }
 
     Button.OnClickListener btn_Scan_Listener = new Button.OnClickListener() {
@@ -96,19 +93,6 @@ public class ScanActivity extends AppCompatActivity {
         }
     };
 
-    Button.OnClickListener btn_Reconnect_Listener = new Button.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Toast.makeText(getApplicationContext(),"reconnect onClick", Toast.LENGTH_SHORT).show();
-            if(mBluetoothDevice == null){
-                Toast.makeText(getApplicationContext(),"mBluetoothDevice is null", Toast.LENGTH_SHORT).show();
-            }else{
-                if(mBluetoothGatt.connect()){
-                    Toast.makeText(getApplicationContext(),"Reconnect", Toast.LENGTH_SHORT).show();
-                }
-            }
-        }
-    };
 
     TextView.OnClickListener txt_Advertise_Listener = new TextView.OnClickListener() {
         @Override
@@ -398,6 +382,5 @@ public class ScanActivity extends AppCompatActivity {
     class ViewHolder {
         TextView txt_DeviceName, txt_DeviceAddress;
     }
-
 
 }
