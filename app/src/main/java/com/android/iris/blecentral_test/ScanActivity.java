@@ -18,6 +18,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.ArrayMap;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,25 +37,21 @@ import java.util.UUID;
 public class ScanActivity extends AppCompatActivity {
     private Button btn_Scan;
     private ListView lst_BleDevices;
-    private TextView txt_Advertise;
     private BleDeviceAdapter mBleDeviceAdapter;
-
+    private ArrayMap<BluetoothDevice, ScanResult> mapDevices;
     private BluetoothLeScanner mBleScanner;
-    private BluetoothDevice mBluetoothDevice;
     private BluetoothGatt mBluetoothGatt;
     private BluetoothAdapter mBluetoothAdapter;
     private Handler mHandler = new Handler();
     private List<BluetoothGattService> mServices = null;
     private final  String TAG = "TAG";
     String SERVICE_HEART_RATE = "0000180D-0000-1000-8000-00805F9B34FB";
-    String CHAR_Body_Sensor_Location_READ = "00002A38-0000-1000-8000-00805F9B34FB";
-    //String strRandomService = "";
 
 
     private Handler MessageHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
-            txt_Advertise.setText(txt_Advertise.getText() + "\n"+ msg.getData().getString("title") + ":"+ msg.getData().getString("msg"));
+            //txt_Advertise.setText(txt_Advertise.getText() + "\n"+ msg.getData().getString("title") + ":"+ msg.getData().getString("msg"));
 
             super.handleMessage(msg);
         }
@@ -73,10 +70,12 @@ public class ScanActivity extends AppCompatActivity {
         //get components from layout
         btn_Scan = (Button) findViewById(R.id.btn_Scan);
         lst_BleDevices = (ListView) findViewById(R.id.lst_BleDevices);
-        txt_Advertise = (TextView) findViewById(R.id.txt_Advertise);
 
-        //mBleDeviceAdapter = new BleDeviceAdapter();
-        //lst_BleDevices.setAdapter(mBleDeviceAdapter);
+        //listview content
+        mapDevices = new ArrayMap<>();
+        mBleDeviceAdapter = new BleDeviceAdapter();
+        lst_BleDevices.setAdapter(mBleDeviceAdapter);
+
 
         //get Bluetooth Adapter
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -94,29 +93,29 @@ public class ScanActivity extends AppCompatActivity {
     };
 
 
-    TextView.OnClickListener txt_Advertise_Listener = new TextView.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Toast.makeText(getApplicationContext(),"text onClick", Toast.LENGTH_LONG).show();
-            if(mBluetoothDevice == null){
-                Toast.makeText(getApplicationContext(),"mBluetoothDevice is null", Toast.LENGTH_LONG).show();
-            }else{
-                if(mBluetoothGatt != null){
-                    mBluetoothGatt.close();
-                    mBluetoothGatt = null;
-                }
-                Toast.makeText(getApplicationContext(),"Device Name:" + mBluetoothDevice.getName(), Toast.LENGTH_LONG).show();
-                boolean boo = mUIHandler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Log.d(TAG, "connect runnable");
-                        mBluetoothGatt = mBluetoothDevice.connectGatt(getApplicationContext(), false, mGattCallback);
-                    }
-                });
-                Log.d(TAG, "connectGatt: " +boo);
-            }
-        }
-    };
+//    TextView.OnClickListener txt_Advertise_Listener = new TextView.OnClickListener() {
+//        @Override
+//        public void onClick(View v) {
+//            Toast.makeText(getApplicationContext(),"text onClick", Toast.LENGTH_LONG).show();
+//            if(mBluetoothDevice == null){
+//                Toast.makeText(getApplicationContext(),"mBluetoothDevice is null", Toast.LENGTH_LONG).show();
+//            }else{
+//                if(mBluetoothGatt != null){
+//                    mBluetoothGatt.close();
+//                    mBluetoothGatt = null;
+//                }
+//                Toast.makeText(getApplicationContext(),"Device Name:" + mBluetoothDevice.getName(), Toast.LENGTH_LONG).show();
+//                boolean boo = mUIHandler.post(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        Log.d(TAG, "connect runnable");
+//                        mBluetoothGatt = mBluetoothDevice.connectGatt(getApplicationContext(), false, mGattCallback);
+//                    }
+//                });
+//                Log.d(TAG, "connectGatt: " +boo);
+//            }
+//        }
+//    };
 
     /**
      * discover advertise of the device*/
@@ -169,23 +168,30 @@ public class ScanActivity extends AppCompatActivity {
             if(result == null || result.getDevice() == null || TextUtils.isEmpty(result.getDevice().getName()))
                 return;
 
-            stopDiscover();
-            StringBuilder builder = new StringBuilder(result.getDevice().getName());
-            builder.append("\n").append(new String(result.getScanRecord().getServiceData(result.getScanRecord().getServiceUuids().get(0)), Charset.forName("UTF-8")));
-            builder.append("\n").append(result.toString());
-
-            Message msg = new Message();
-            Bundle data = new Bundle();
-            data.putString("title", "advertise:");
-            data.putString("msg", builder.toString());
-            msg.setData(data);
-            MessageHandler.sendMessage(msg);
+//            StringBuilder builder = new StringBuilder(result.getDevice().getName());
+//            builder.append("\n").append(new String(result.getScanRecord().getServiceData(result.getScanRecord().getServiceUuids().get(0)), Charset.forName("UTF-8")));
+//            builder.append("\n").append(result.toString());
+//
+//            Message msg = new Message();
+//            Bundle data = new Bundle();
+//            data.putString("title", "advertise:");
+//            data.putString("msg", builder.toString());
+//            msg.setData(data);
+//            MessageHandler.sendMessage(msg);
 
             //get remote device address
-            mBluetoothDevice = result.getDevice();
-            SERVICE_HEART_RATE = result.getScanRecord().getServiceUuids().get(0).toString();
+            //mBluetoothDevice = result.getDevice();
+            //SERVICE_HEART_RATE = result.getScanRecord().getServiceUuids().get(0).toString();
 
-            txt_Advertise.setOnClickListener(txt_Advertise_Listener);
+            //txt_Advertise.setOnClickListener(txt_Advertise_Listener);
+
+            BluetoothDevice device = result.getDevice();
+            if(mapDevices.containsKey(device)){
+                //
+            }else{
+                mapDevices.put(device, result);
+            }
+            mBleDeviceAdapter.notifyDataSetChanged();
 
         }
 
@@ -337,7 +343,7 @@ public class ScanActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 0;
+            return mapDevices.size();
         }
 
         @Override
@@ -357,13 +363,16 @@ public class ScanActivity extends AppCompatActivity {
                 convertView = mLayoutInflater.inflate(R.layout.list_item, null);
 
                 vholder = new ViewHolder();
+
                 //in order not to call the findViewById too early, so use "View.findViewById" to call the obj.
                 vholder.txt_DeviceName = (TextView) convertView.findViewById(R.id.txt_DeviceName);
                 vholder.txt_DeviceAddress = (TextView) convertView.findViewById(R.id.txt_DeviceAddress);
+                vholder.txt_DeviceID = (TextView) convertView.findViewById(R.id.txt_DeviceID);
 
                 //set txt color
                 vholder.txt_DeviceName.setTextColor(Color.parseColor("#000000"));
                 vholder.txt_DeviceAddress.setTextColor(Color.parseColor("#000000"));
+                vholder.txt_DeviceID.setTextColor(Color.parseColor("#000000"));
 
                 //in order to reuse the view by tag, store the vholder within convertView by tag
                 convertView.setTag(vholder);
@@ -372,15 +381,17 @@ public class ScanActivity extends AppCompatActivity {
                 vholder = (ViewHolder) convertView.getTag();
             }
 
-            vholder.txt_DeviceName.setText("這是第幾個" );
-            vholder.txt_DeviceAddress.setText("這是holder" + convertView.getTag().toString());
-
+            ScanResult result = mapDevices.valueAt(position);
+            String strID = new String(result.getScanRecord().getServiceData(result.getScanRecord().getServiceUuids().get(0)), Charset.forName("UTF8"));
+            vholder.txt_DeviceName.setText(result.getDevice().getName());
+            vholder.txt_DeviceAddress.setText(result.getDevice().getAddress());
+            vholder.txt_DeviceID.setText(strID);
             return convertView;
         }
     }
 
-    class ViewHolder {
-        TextView txt_DeviceName, txt_DeviceAddress;
+    private class ViewHolder {
+        TextView txt_DeviceName, txt_DeviceAddress, txt_DeviceID;
     }
 
 }

@@ -18,11 +18,11 @@
         android:layout_height="wrap_content"
         android:text="Scan" />
 
-    <TextView
-        android:id="@+id/txt_Advertise"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="AdvertiseData"/>
+    <!--<TextView-->
+        <!--android:id="@+id/txt_Advertise"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="match_parent"-->
+        <!--android:text="AdvertiseData"/>-->
 
     <ListView
         android:id="@+id/lst_BleDevices"
