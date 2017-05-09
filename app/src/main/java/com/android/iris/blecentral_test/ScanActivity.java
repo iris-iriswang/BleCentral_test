@@ -23,41 +23,43 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class ScanActivity extends AppCompatActivity {
+    private final  String TAG = "ScanActivity_TAG";
+
     private Button btn_Scan;
     private ListView lst_BleDevices;
     private BleDeviceAdapter mBleDeviceAdapter;
     private ArrayMap<BluetoothDevice, ScanResult> mapDevices;
+
+    private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner mBleScanner;
     private BluetoothGatt mBluetoothGatt;
-    private BluetoothAdapter mBluetoothAdapter;
-    private Handler mHandler = new Handler();
-    private List<BluetoothGattService> mServices = null;
-    private final  String TAG = "TAG";
+
+    List<BluetoothGattService> mServices = null;
     String SERVICE_HEART_RATE = "0000180D-0000-1000-8000-00805F9B34FB";
+    BluetoothDevice mBluetoothDevice = null;
 
-
+    private Handler mHandler = new Handler();
+    private Handler mUIHandler;
     private Handler MessageHandler = new Handler(){
         @Override
         public void handleMessage(Message msg) {
             //txt_Advertise.setText(txt_Advertise.getText() + "\n"+ msg.getData().getString("title") + ":"+ msg.getData().getString("msg"));
-
+            Toast.makeText(getApplicationContext(), msg.getData().getString("title") + ":"+ msg.getData().getString("msg"), Toast.LENGTH_LONG).show();
             super.handleMessage(msg);
         }
     };
-
-    private Handler mUIHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,7 @@ public class ScanActivity extends AppCompatActivity {
         mBluetoothAdapter.setName("sony");
 
         btn_Scan.setOnClickListener(btn_Scan_Listener);
+        lst_BleDevices.setOnItemClickListener(lst_Connect_Listen);
     }
 
     Button.OnClickListener btn_Scan_Listener = new Button.OnClickListener() {
@@ -92,30 +95,16 @@ public class ScanActivity extends AppCompatActivity {
         }
     };
 
+    ListView.OnItemClickListener lst_Connect_Listen = new ListView.OnItemClickListener(){
 
-//    TextView.OnClickListener txt_Advertise_Listener = new TextView.OnClickListener() {
-//        @Override
-//        public void onClick(View v) {
-//            Toast.makeText(getApplicationContext(),"text onClick", Toast.LENGTH_LONG).show();
-//            if(mBluetoothDevice == null){
-//                Toast.makeText(getApplicationContext(),"mBluetoothDevice is null", Toast.LENGTH_LONG).show();
-//            }else{
-//                if(mBluetoothGatt != null){
-//                    mBluetoothGatt.close();
-//                    mBluetoothGatt = null;
-//                }
-//                Toast.makeText(getApplicationContext(),"Device Name:" + mBluetoothDevice.getName(), Toast.LENGTH_LONG).show();
-//                boolean boo = mUIHandler.post(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Log.d(TAG, "connect runnable");
-//                        mBluetoothGatt = mBluetoothDevice.connectGatt(getApplicationContext(), false, mGattCallback);
-//                    }
-//                });
-//                Log.d(TAG, "connectGatt: " +boo);
-//            }
-//        }
-//    };
+
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            mBluetoothDevice = mapDevices.valueAt(position).getDevice();
+            connectGattServer();
+        }
+    };
+
 
     /**
      * discover advertise of the device*/
@@ -160,6 +149,31 @@ public class ScanActivity extends AppCompatActivity {
         Log.d(TAG, "stopDiscover");
     }
 
+    private  void connectGattServer() {
+        if (mBluetoothDevice == null) {
+            Toast.makeText(getApplicationContext(), "mBluetoothDevice is null", Toast.LENGTH_LONG).show();
+        } else {
+            if (mBluetoothGatt != null) {
+                mBluetoothGatt.close();
+                mBluetoothGatt = null;
+            }
+            Toast.makeText(getApplicationContext(), "Device Name:" + mBluetoothDevice.getName(), Toast.LENGTH_LONG).show();
+            boolean boo = mUIHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Log.d(TAG, "connect runnable");
+                    mBluetoothGatt = mBluetoothDevice.connectGatt(getApplicationContext(), false, mGattCallback);
+                }
+            });
+            Log.d(TAG, "connectGatt: " + boo);
+        }
+
+    }
+
+    private void disconnectServer(){
+
+    }
+
     private ScanCallback mScanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
@@ -183,14 +197,9 @@ public class ScanActivity extends AppCompatActivity {
             //mBluetoothDevice = result.getDevice();
             //SERVICE_HEART_RATE = result.getScanRecord().getServiceUuids().get(0).toString();
 
-            //txt_Advertise.setOnClickListener(txt_Advertise_Listener);
-
             BluetoothDevice device = result.getDevice();
-            if(mapDevices.containsKey(device)){
-                //
-            }else{
-                mapDevices.put(device, result);
-            }
+            mapDevices.put(device, result);
+
             mBleDeviceAdapter.notifyDataSetChanged();
 
         }
@@ -382,7 +391,8 @@ public class ScanActivity extends AppCompatActivity {
             }
 
             ScanResult result = mapDevices.valueAt(position);
-            String strID = new String(result.getScanRecord().getServiceData(result.getScanRecord().getServiceUuids().get(0)), Charset.forName("UTF8"));
+            //String strID = new String(result.getScanRecord().getServiceData(result.getScanRecord().getServiceUuids().get(0)), Charset.forName("UTF8"));
+            String strID = result.toString();
             vholder.txt_DeviceName.setText(result.getDevice().getName());
             vholder.txt_DeviceAddress.setText(result.getDevice().getAddress());
             vholder.txt_DeviceID.setText(strID);
